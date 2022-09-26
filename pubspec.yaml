@@ -1,7 +1,7 @@
 name: phantom_connect
 description: A flutter plugin to connect phantom wallet
 version: 0.0.1
-homepage:
+homepage: https://github.com/StrawHatXYZ/phantom_connect
 
 environment:
   sdk: '>=2.18.0 <3.0.0'

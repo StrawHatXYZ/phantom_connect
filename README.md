@@ -4,12 +4,12 @@
 
 This package has all these provider methods implemented for easy to use:
 
-* [x] Connect
-* [x] Disconnect
-* [x] SignAndSendTransaction
-* [x] SignAllTransactions
-* [x] SignTransaction
-* [x] SignMessage
+* Connect
+* Disconnect
+* SignAndSendTransaction
+* SignAllTransactions
+* SignTransaction
+* SignMessage
 
 ## Getting Started
 
