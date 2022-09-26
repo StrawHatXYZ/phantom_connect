@@ -1,15 +1,17 @@
 # Phantom Connect
 
+-
+
 ## Features
 
 This package has all these provider methods implemented for easy to use:
 
-* Connect
-* Disconnect
-* SignAndSendTransaction
-* SignAllTransactions
-* SignTransaction
-* SignMessage
+- Connect
+- Disconnect
+- SignAndSendTransaction
+- SignAllTransactions
+- SignTransaction
+- SignMessage
 
 ## Getting Started
 
@@ -17,9 +19,11 @@ We need to have deeplink for our application for handling returned data from pha
 
 A few resources to get you started:
 
-* [How to add deeplinks](https://docs.flutter.dev/development/ui/navigation/deep-linking)
+- [How to add deeplinks](https://docs.flutter.dev/development/ui/navigation/deep-linking)
 
 ## Usage
+
+To use this plugin, add [`phantom_connect`](https://pub.dev/packages/phantom_connect) as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/).
 
 First and foremost, import the widget.
 
@@ -29,8 +33,8 @@ import 'package:phantom_connect/phantom_connect.dart';
 
 Initialise the object with required Parameters.
 
-* `appUrl` A url used to fetch app metadata i.e. title, icon.
-* `deepLink` The URI where Phantom should redirect the user upon connection. Deep Link we used in our application.
+- `appUrl` A url used to fetch app metadata i.e. title, icon.
+- `deepLink` The URI where Phantom should redirect the user upon connection. Deep Link we used in our application.
 
 ```dart
   final PhantomConnect phantomConnect = PhantomConnect(
@@ -41,4 +45,4 @@ Initialise the object with required Parameters.
 
 ## Example
 
-* A full example application will be released soon.
+- A full example application will be released soon.
