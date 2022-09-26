@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:pinenacl/digests.dart';
 import 'package:pinenacl/x25519.dart';
 import 'package:solana/base58.dart';
 import 'package:solana/solana.dart';
@@ -30,8 +31,9 @@ class PhantomConnect {
     dAppPublicKey = dAppSecretKey.publicKey;
   }
 
-  Uri generateConnectUri({required String cluster}) {
-    Uri url = Uri(
+  // Generate an URL to connect to Solana [cluster] with Phantom Wallet
+  Uri generateConnectUri({required String cluster, required String redirect}) {
+    return Uri(
       scheme: 'https',
       host: 'phantom.app',
       path: '/ul/v1/connect',
@@ -39,13 +41,16 @@ class PhantomConnect {
         'dapp_encryption_public_key': base58encode(dAppPublicKey.asTypedList),
         'cluster': cluster,
         'app_url': appUrl,
-        'redirect_link': "$deepLink/connected",
+        'redirect_link': "$deepLink$redirect",
       },
     );
-    return url;
   }
 
-  Uri generateSignAndSendTransactionUri({required String transaction}) {
+  // Generate an URL with given [transaction] to signAndSend transaction with Phantom Wallet.
+  //
+  // Returns an encrypted payload
+  Uri generateSignAndSendTransactionUri(
+      {required String transaction, required String redirect}) {
     var payload = {
       "session": sessionToken,
       "transaction": base58encode(
@@ -63,13 +68,14 @@ class PhantomConnect {
       queryParameters: {
         "dapp_encryption_public_key": base58encode(dAppPublicKey.asTypedList),
         "nonce": base58encode(encryptedPayload["nonce"]),
-        'redirect_link': "$deepLink/signAndSendTransaction",
+        'redirect_link': "$deepLink$redirect",
         'payload': base58encode(encryptedPayload["encryptedPayload"])
       },
     );
   }
 
-  Uri generateDisconectUri() {
+  // Generate an URL to disconnect from Phantom Wallet
+  Uri generateDisconectUri({required String redirect}) {
     var payLoad = {
       "session": sessionToken,
     };
@@ -82,7 +88,7 @@ class PhantomConnect {
       queryParameters: {
         "dapp_encryption_public_key": base58encode(dAppPublicKey.asTypedList),
         "nonce": base58encode(encryptedPayload["nonce"]),
-        'redirect_link': "$deepLink/disconnect",
+        'redirect_link': "$deepLink$redirect",
         "payload": base58encode(encryptedPayload["encryptedPayload"]),
       },
     );
@@ -90,7 +96,10 @@ class PhantomConnect {
     return launchUri;
   }
 
-  Uri generateSignTransactionUri({required String transaction}) {
+  // Generates a URL with given [transaction] to sign transaction with Phantom Wallet. And returns the signed transaction. we can use this signed transaction to send it to the network.
+
+  Uri generateSignTransactionUri(
+      {required String transaction, required String redirect}) {
     var payload = {
       "transaction": base58encode(
         Uint8List.fromList(
@@ -108,15 +117,18 @@ class PhantomConnect {
       queryParameters: {
         "dapp_encryption_public_key": base58encode(dAppPublicKey.asTypedList),
         "nonce": base58encode(encryptedPayload["nonce"]),
-        'redirect_link': "$deepLink/signTransaction",
+        'redirect_link': "$deepLink$redirect",
         'payload': base58encode(encryptedPayload["encryptedPayload"])
       },
     );
   }
 
-  Uri generateSignMessageUri({required Uint8List nonce}) {
+  Uri generateSignMessageUri(
+      {required Uint8List nonce, required String redirect}) {
+    Uint8List hashedNonce = Hash.sha256(nonce);
+
     var message =
-        "Sign this message for authenticating with your wallet. Nonce: ${base58encode(nonce)}";
+        "Sign this message for authenticating with your wallet. Nonce: ${base58encode(hashedNonce)}";
     var payload = {
       "session": sessionToken,
       "message": base58encode(message.codeUnits.toUint8List()),
@@ -132,7 +144,7 @@ class PhantomConnect {
         "dapp_encryption_public_key":
             base58encode(Uint8List.fromList(dAppPublicKey)),
         "nonce": base58encode(encrypt["nonce"]),
-        "redirect_link": "$deepLink/onSignMessage",
+        "redirect_link": "$deepLink$redirect",
         "payload": base58encode(encrypt["encryptedPayload"]),
       },
     );
@@ -153,8 +165,9 @@ class PhantomConnect {
   }
 
   Future<bool> isValidSignature(String signature, Uint8List nonce) async {
+    Uint8List hashedNonce = Hash.sha256(nonce);
     var message =
-        "Sign this message for authenticating with your wallet. Nonce: ${base58encode(nonce)}";
+        "Sign this message for authenticating with your wallet. Nonce: ${base58encode(hashedNonce)}";
     var messageBytes = message.codeUnits.toUint8List();
     var signatureBytes = base58decode(signature);
     bool verify = await verifySignature(

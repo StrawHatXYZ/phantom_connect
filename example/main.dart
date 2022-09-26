@@ -13,7 +13,8 @@ class MyApp extends StatelessWidget {
   );
 
   void connect() {
-    Uri connectUrl = phantomConnect.generateConnectUri(cluster: 'devnet');
+    Uri connectUrl = phantomConnect.generateConnectUri(
+        cluster: 'devnet', redirect: '/onConnect');
     // Open the url using url_launcher
   }
 
