@@ -1,0 +1,4 @@
+dartdoc:
+  ignore:
+      - unresolved-doc-reference
+      - ambiguous-doc-reference

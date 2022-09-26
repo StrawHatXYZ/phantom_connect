@@ -1,6 +1,6 @@
 name: phantom_connect
-description: A flutter plugin to connect phantom wallet
-version: 0.0.3
+description: A flutter plugin to connect phantom wallet from Mobile Application.
+version: 0.0.4
 homepage: https://github.com/StrawHatXYZ/phantom_connect
 
 environment:

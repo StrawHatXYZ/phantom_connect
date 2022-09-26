@@ -1,17 +1,17 @@
 # Phantom Connect
 
--
+- Phantom Connect is a package that allows users to connect to Phantom Wallet from their Application.
 
 ## Features
 
 This package has all these provider methods implemented for easy to use:
 
-- Connect
-- Disconnect
-- SignAndSendTransaction
-- SignAllTransactions
-- SignTransaction
-- SignMessage
+- [Connect](https://docs.phantom.app/integrating/deeplinks-ios-and-android/provider-methods/connect)
+- [Disconnect](https://docs.phantom.app/integrating/deeplinks-ios-and-android/provider-methods/disconnect)
+- [SignAndSendTransaction](https://docs.phantom.app/integrating/deeplinks-ios-and-android/provider-methods/signandsendtransaction)
+- [SignAllTransactions](https://docs.phantom.app/integrating/deeplinks-ios-and-android/provider-methods/signalltransactions)
+- [SignTransaction](https://docs.phantom.app/integrating/deeplinks-ios-and-android/provider-methods/signtransaction)
+- [SignMessage](https://docs.phantom.app/integrating/deeplinks-ios-and-android/provider-methods/signmessage)
 
 ## Getting Started
 
