@@ -1,6 +1,8 @@
 # Phantom Connect
 
 - Phantom Connect is a package that allows users to connect to Phantom Wallet from their Application.
+- This package is used to generate deeplink urls for Phantom Wallet to connect to your application.
+- This package was in active development.
 
 ## Features
 
@@ -45,4 +47,4 @@ Initialise the object with required Parameters.
 
 ## Example
 
-- A full example application will be released soon.
+- An example of how to use this package can be found [here](https://github.com/StrawHatXYZ/phantom_connect)

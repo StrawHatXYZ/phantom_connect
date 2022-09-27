@@ -1,3 +1,7 @@
+## 0.0.5
+
+- BREAKING CHANGE: Typo Fix renamed `generateDisconectUri` to `generateDisconnectUri`.
+
 ## 0.0.4
 
 - Updated docs for reference.

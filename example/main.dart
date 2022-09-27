@@ -9,13 +9,13 @@ class MyApp extends StatelessWidget {
   // Initialize the PhantomConnect object
   final PhantomConnect phantomConnect = PhantomConnect(
     appUrl: "https://solana.com",
-    deepLink: "samepl://exampledeeplink.io",
+    deepLink: "dapp://exampledeeplink.io",
   );
 
   void connect() {
     Uri connectUrl = phantomConnect.generateConnectUri(
         cluster: 'devnet', redirect: '/onConnect');
-    // Open the url using url_launcher
+    // Open the url using (url_launcher)[https://pub.dev/packages/url_launcher]]
   }
 
   @override

@@ -100,7 +100,7 @@ class PhantomConnect {
   ///
   /// - Returns URL which will be used to send to Phantom Wallet `/disconnect` endpoint.
   /// - It redirects user to [redirect].
-  Uri generateDisconectUri({required String redirect}) {
+  Uri generateDisconnectUri({required String redirect}) {
     var payLoad = {
       "session": _sessionToken,
     };
