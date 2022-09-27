@@ -41,10 +41,10 @@ Initialise the object with required Parameters.
 ```dart
   final PhantomConnect phantomConnect = PhantomConnect(
     appUrl: "https://solana.com", 
-    deepLink: "samepl://exampledeeplink.io",
+    deepLink: "dapp://exampledeeplink.io",
   );
 ```
 
 ## Example
 
-- An example of how to use this package can be found [here](https://github.com/StrawHatXYZ/phantom_connect)
+- An example of how to use this package can be found [here](https://github.com/StrawHatXYZ/flutter-phantom-demo).

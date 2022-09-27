@@ -1,3 +1,7 @@
+## 0.0.6
+
+- Added reference to demo application.
+
 ## 0.0.5
 
 - BREAKING CHANGE: Typo Fix renamed `generateDisconectUri` to `generateDisconnectUri`.
