@@ -1,3 +1,8 @@
+## 0.0.8
+
+- Implemented `generateSignAllTransactions` method.
+- Updated documentation.
+
 ## 0.0.7
 
 - Fix typos in README.md

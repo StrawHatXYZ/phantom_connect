@@ -4,7 +4,7 @@ import 'package:pinenacl/x25519.dart';
 import 'package:solana/base58.dart';
 import 'package:solana/solana.dart';
 
-/// Phantom Connect is a package that allows users to connect to Phantom Wallet
+/// Phantom Connect is a package that allows users to connect to Phantom Wallet from Mobile apps.
 ///
 /// - This package need deeplinking to work, so you need to add your own deeplink to your app.
 /// - You can find more information about deeplinking from [here](https://docs.flutter.dev/development/ui/navigation/deep-linking)
@@ -15,6 +15,12 @@ class PhantomConnect {
   /// The scheme of the app that will be opened i.e Phantom.
   final String host = "phantom.app";
 
+  /// [_sessionToken] is string encoded in base58. This should be treated as opaque by the connecting app, as it only needs to be passed alongside other parameters.
+  ///
+  /// When a user connects to Phantom for the first time, Phantom will return a session param that represents the user's connection.
+  /// The app should pass this session param back to Phantom on all subsequent Provider Methods.
+  /// Sessions do not expire. Once a user has connected with Phantom, the corresponding app can indefinitely make requests such as `SignAndSendTransaction` and `SignMessage` without prompting the user to re-connect with Phantom.
+  /// Apps will still need to re-connect to Phantom after a Disconnect event we can use [generateDisconnectUri] for that.
   String? _sessionToken;
 
   /// [dAppPublicKey] and [_dAppSecretKey] Keypair for encryption and decryption
@@ -50,8 +56,12 @@ class PhantomConnect {
 
   /// Generate an URL to connect to Solana [cluster] with Phantom Wallet.
   ///
-  /// - Returns a url which will be used to send to Phantom Wallet connect endpoint.
-  /// - It redirects user to [redirect] with `phantom_encryption_public_key`, `nonce` and encrypted `data` as query parameters.
+  /// - In order to start interacting with Phantom, an app must first establish a connection.
+  /// - This connection request will prompt the user for permission to share their public key, indicating that they are willing to interact further.
+  /// - It returns a url which will be used to send to Phantom Wallet `/connect` endpoint.
+  /// - Once approved It redirects user to [redirect] with `phantom_encryption_public_key`, `nonce` and encrypted `data` as query parameters.
+  /// - If the user denies the connection request, Phantom will redirect the user to [redirect] with `errorCode` and `errorMessage` as query parameter.
+  /// - Refer to [Errors](https://docs.phantom.app/integrating/errors) for a full list of possible error codes.
   Uri generateConnectUri({required String cluster, required String redirect}) {
     return Uri(
       scheme: scheme,
@@ -69,6 +79,7 @@ class PhantomConnect {
   /// Generate an URL with given [transaction] to signAndSend transaction with Phantom Wallet.
   ///
   /// - Returns URL which will be used to send to Phantom Wallet signAndSendTransaction endpoint.
+  /// - Refer to [](https://github.com/cryptoplease/cryptoplease-dart/issues/291#issuecomment-1153153453) for creating compiled transaction without signing in flutter/dart.
   /// - Also it redirects user to [redirect] with `nonce` and encrypted `data` as query parameters.
   /// - Encrypted `data` contains `signature` and can be decrypted using [decryptPayload] method.
   Uri generateSignAndSendTransactionUri(
@@ -100,6 +111,8 @@ class PhantomConnect {
   ///
   /// - Returns URL which will be used to send to Phantom Wallet `/disconnect` endpoint.
   /// - It redirects user to [redirect].
+  /// - [_sessionToken] and [_sharedSecret] was destroyed after the session is over.
+  /// - Once the session is destroyed, the app will need to re-connect to Phantom before making any further requests.
   Uri generateDisconnectUri({required String redirect}) {
     var payLoad = {
       "session": _sessionToken,
@@ -151,6 +164,38 @@ class PhantomConnect {
     );
   }
 
+  /// Generate an URL with given [transactions] to sign all transaction with Phantom Wallet.
+  ///
+  /// - Returns URL which will be used to send to Phantom Wallet `/signAllTransactions` endpoint.
+  /// - It redirects user to [redirect] with `nonce` and encrypted `data` as query parameters.
+  /// - Encrypted `data` contains `signedTransaction` and `base58 encoded serialized transaction` that can be decrypted using [decryptPayload] method.
+  Uri generateUriSignAllTransactions(
+      {required List<String> transactions, required String redirect}) {
+    var payload = {
+      "transactions": transactions
+          .map((e) => base58encode(
+                Uint8List.fromList(
+                  base64.decode(e),
+                ),
+              ))
+          .toList(),
+      "session": _sessionToken,
+    };
+    var encryptedPayload = encryptPayload(payload);
+
+    return Uri(
+      scheme: 'https',
+      host: 'phantom.app',
+      path: '/ul/v1/signAllTransactions',
+      queryParameters: {
+        "dapp_encryption_public_key": base58encode(dAppPublicKey.asTypedList),
+        "nonce": base58encode(encryptedPayload["nonce"]),
+        'redirect_link': "$deepLink$redirect",
+        'payload': base58encode(encryptedPayload["encryptedPayload"])
+      },
+    );
+  }
+
   /// Generates an URL with given [nonce] to be signed by Phantom Wallet to verify the ownership of the wallet.
   ///
   /// - [nonce] will be generated on server side and sent to Phantom Wallet.
@@ -187,7 +232,11 @@ class PhantomConnect {
     );
   }
 
-  /// Creates [_sharedSecret] between [_dAppSecretKey] and [phantom_encryption_public_key].
+  /// Creates [_sharedSecret] using [_dAppSecretKey] and [phantom_encryption_public_key].
+  ///
+  /// Once [_sharedSecret] is created, it can be used to encrypt and decrypt data.
+  /// Here we decrypt the [data] using [_sharedSecret] and [nonce] to get [_sessionToken] and [userPublicKey].
+  /// Refer to (Encryption)[https://docs.phantom.app/integrating/deeplinks-ios-and-android/encryption] to learn how apps can decrypt data using a shared secret. Encrypted bytes are encoded in base58.
   bool createSession(Map<String, String> params) {
     try {
       createSharedSecret(Uint8List.fromList(
@@ -234,8 +283,10 @@ class PhantomConnect {
   ///
   /// - Using [nonce] we generated on server side and [_dAppSecretKey] we decrypt the encrypted data.
   /// - Returns the decrypted `payload` as a `Map<dynamic, dynamic>`.
-  Map<dynamic, dynamic> decryptPayload(
-      {required String data, required String nonce}) {
+  Map<dynamic, dynamic> decryptPayload({
+    required String data,
+    required String nonce,
+  }) {
     if (_sharedSecret == null) {
       return <String, String>{};
     }
